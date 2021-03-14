@@ -29,7 +29,6 @@ public class NewtonUniversalGravitation implements ForceLaws{
                 }
             }
         }
-
     }
 
     private Vector2D force(Body i, Body j){ // F = G *(m1*m2)/|p2-p1|^2:

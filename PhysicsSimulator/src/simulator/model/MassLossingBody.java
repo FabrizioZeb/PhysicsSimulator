@@ -2,7 +2,7 @@ package simulator.model;
 
 import simulator.misc.Vector2D;
 
-public class MassLossingBody extends Body{
+public class MassLossingBody extends Body {
 
     private double lossFactor;
     private double lossFrequency;
@@ -16,13 +16,13 @@ public class MassLossingBody extends Body{
 
 
     @Override
-    public void move(double t){
+    public void move(double t) {
         super.move(t);
-        if(c >= lossFrequency){
-            mass = mass * (1-lossFactor);
+        if (c >= lossFrequency) {
+            mass = mass * (1 - lossFactor);
             c = 0;
-        }
-        else c += t;
+        } else c += t;
     }
+
 
 }
