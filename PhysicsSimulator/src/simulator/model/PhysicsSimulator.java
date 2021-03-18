@@ -39,9 +39,8 @@ public class PhysicsSimulator {
         JSONObject a = new JSONObject();
         a.put("time", time);
         for(Body b: bodyList){
-            a = b.getState();
+            a.put("bodies", b.getState());
         }
-        a.put("bodies", a);
         return a;
     }
 

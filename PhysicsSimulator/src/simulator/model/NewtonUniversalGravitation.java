@@ -26,7 +26,7 @@ public class NewtonUniversalGravitation implements ForceLaws{
                         bs.get(i).resetForce();
                     }
                     else {
-                        a = Force.scale(1/bs.get(i).getMass());
+                        a = a.plus(Force.scale(1/bs.get(i).getMass()));
                     }
 
                 }
