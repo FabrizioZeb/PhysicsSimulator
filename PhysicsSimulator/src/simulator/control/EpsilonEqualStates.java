@@ -8,7 +8,7 @@ public class EpsilonEqualStates implements StateComparator {
 
     private double E;
 
-    EpsilonEqualStates(double eps){
+    public EpsilonEqualStates(double eps){
         this.E = eps;
     }
 
