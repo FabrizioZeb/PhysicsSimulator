@@ -35,28 +35,31 @@ public class Controller {
         if(expOut != null) {
             jo = new JSONObject(new JSONTokener(expOut));
         }
-        out.write("{".getBytes());
-        out.write("\"states\": [".getBytes());
+        out.write("{\n".getBytes());
+        out.write("\"states\": [\n".getBytes());
         out.write(Sim.toString().getBytes());
-        out.write(",".getBytes());
+        out.write("\n,".getBytes());
         for (int i = 0; i < n; i++) {
             Sim.advance();
             out.write(Sim.toString().getBytes());
-            JSONObject object = new JSONObject(new JSONTokener(String.valueOf(out)));
 
-            if(!cmp.equal(object,jo)) {
-                String str = "Estados diferentes: %s";
-                String.format(str,i);
-                str += "Paso: %s";
-                String.format(str,n);
-                throw new ExceptionState(str);
+            if(cmp != null) {
+                JSONObject object = new JSONObject(new JSONTokener(String.valueOf(out)));
+                if(!cmp.equal(object,jo)) {
+                    String str = "Estados diferentes: %s";
+                    String.format(str,i);
+                    str += "Paso: %s";
+                    String.format(str,n);
+                    throw new ExceptionState(str);
+                }
             }
 
-            if (i != n - 1) out.write(",".getBytes());
+            if (i != n - 1) out.write("\n,".getBytes());
         }
         out.write("]".getBytes());
         out.write("}".getBytes());
         out.close();
+
 
 
 

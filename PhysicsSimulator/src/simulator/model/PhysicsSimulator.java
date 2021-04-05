@@ -1,5 +1,6 @@
 package simulator.model;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -37,10 +38,12 @@ public class PhysicsSimulator {
 
     public JSONObject getState(){
         JSONObject a = new JSONObject();
-        a.put("time", time);
+        JSONArray ar = new JSONArray();
         for(Body b: bodyList){
-            a.put("bodies", b.getState());
+            ar.put(b.getState());
         }
+        a.put("bodies", ar);
+        a.put("time", time);
         return a;
     }
 

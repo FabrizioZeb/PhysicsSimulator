@@ -40,7 +40,10 @@ public class Body {
     }
 
     void addForce(Vector2D f) {
-        this.force.plus(f);
+        double x = force.getX() + f.getX();
+        double y = force.getY() + f.getY();
+        force = new Vector2D(x,y);
+        //this.force.plus(f);
     }
 
     void resetForce() {
@@ -67,6 +70,7 @@ public class Body {
         a.put("id", id);
         a.put("p", pos);
         a.put("v", velocity);
+        a.put("f",force);
         a.put("m", mass);
         return a;
     }

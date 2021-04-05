@@ -39,11 +39,11 @@ public class BuilderBasedFactory<T> implements Factory<T>{
         return list;
     }
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         ArrayList<Builder<Body>> bodyBuilders = new ArrayList<>();
         bodyBuilders.add(new BasicBodyBuilder());
         bodyBuilders.add(new MassLosingBodyBuilder());
         Factory<Body> bodyFactory = new BuilderBasedFactory<Body>(bodyBuilders);
         System.out.println("FIN");
-    }
+    }*/
 }
