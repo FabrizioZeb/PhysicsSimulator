@@ -21,9 +21,9 @@ public class PhysicsSimulator {
     }
 
     public void advance() throws IllegalArgumentException {
+        forceLaws.apply(bodyList);
         for (Body b : bodyList){
-            b.resetForce();
-            forceLaws.apply(bodyList);
+//            b.resetForce();
             if(dt >= 0)
                 b.move(dt);
             else throw new IllegalArgumentException();
@@ -33,7 +33,7 @@ public class PhysicsSimulator {
 
     public void addBody(Body b) throws IllegalArgumentException {
         if(!bodyList.contains(b)) bodyList.add(b);
-        else throw new IllegalArgumentException();
+        else throw new IllegalArgumentException("Already contains that body: " + b);
     }
 
     public JSONObject getState(){

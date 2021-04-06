@@ -1,5 +1,6 @@
 package simulator.model;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import simulator.misc.Vector2D;
 
@@ -58,6 +59,7 @@ public class Body {
             pos = pos.plus(a.scale((t * t) / 2)); // p = p + v*t + 1/2*a*t^2
             velocity = velocity.plus(a.scale(t)); // v = v + a*t
         } else a = new Vector2D(0, 0);
+        force = a.scale(mass);
     }
 
     public boolean equals(Object o) {
@@ -68,9 +70,9 @@ public class Body {
     public JSONObject getState() {
         JSONObject a = new JSONObject();
         a.put("id", id);
-        a.put("p", pos);
-        a.put("v", velocity);
-        a.put("f",force);
+        a.put("p", pos.asJSONArray());
+        a.put("v", velocity.asJSONArray());
+        a.put("f", force.asJSONArray());
         a.put("m", mass);
         return a;
     }
