@@ -7,7 +7,7 @@ import simulator.model.MovingTowardsFixedPoint;
 public class MovingTowardsFixedPointBuilder extends Builder<ForceLaws> {
 
     public MovingTowardsFixedPointBuilder() {
-        super("mtcp", "");
+        super("mtfp", "");
     }
 
     @Override

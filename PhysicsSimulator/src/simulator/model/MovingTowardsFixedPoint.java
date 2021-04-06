@@ -13,11 +13,13 @@ public class MovingTowardsFixedPoint implements ForceLaws {
     @Override
     public void apply(List<Body> bs) {
         for (Body b : bs) {
-            Vector2D a;
+            Vector2D a = new Vector2D();
             if(b.getMass() == 0) a = new Vector2D();
             else {
-                a = b.getPos().direction().scale(-9.81);
+                a = b.getPos().direction();
+                a = a.scale(-9.81);
                 a = a.scale(b.getMass());
+                b.resetForce();
                 b.addForce(a);
             }
         }

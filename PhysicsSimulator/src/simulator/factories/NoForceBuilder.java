@@ -7,7 +7,7 @@ import simulator.model.NoForce;
 public class NoForceBuilder extends Builder<ForceLaws> {
 
     public NoForceBuilder(){
-        super("ng", " ");
+        super("nf", " ");
     }
 
     @Override
