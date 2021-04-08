@@ -31,36 +31,54 @@ public class Controller {
     }
 
     public void run(int n, OutputStream out, InputStream expOut, StateComparator cmp) throws IOException,ExceptionState {
+    	boolean notEq = false;
+    	String st = null, str = null;
+    	PrintStream p = new PrintStream(out);
         JSONObject jo = null;
+        JSONArray Arrayjo = null;
         if(expOut != null) {
             jo = new JSONObject(new JSONTokener(expOut));
+            Arrayjo = jo.getJSONArray("states");
+            
         }
-        out.write("{\n".getBytes());
-        out.write("\"states\": [\n".getBytes());
-        out.write(Sim.toString().getBytes());
-        out.write("\n,".getBytes());
+        //Si n es 0 al menos recorre el estado 0.
+        p.print("{\n");
+        p.print("\"states\": [\n");
+        p.print(Sim.toString());
+        if(cmp != null && expOut != null) {
+        	if(!cmp.equal(Arrayjo.getJSONObject(0), Sim.getState())) {
+        		notEq=true;
+        		st = "Estados diferentes: ";
+        		st += Arrayjo.getJSONObject(0).toString() + " y " + Sim.toString() + " y ";
+        		st += "Paso: 0\n";
+        	}
+        }
+        p.print("\n,");
         for (int i = 0; i < n; i++) {
             Sim.advance();
-            out.write(Sim.toString().getBytes());
+            p.print(Sim.toString());
 
-            if(cmp != null) {
-                JSONObject object = new JSONObject(new JSONTokener(String.valueOf(out)));
-                if(!cmp.equal(object,jo)) {
-                    String str = "Estados diferentes: %s";
-                    String.format(str,i);
-                    str += "Paso: %s";
-                    String.format(str,n);
-                    throw new ExceptionState(str);
+            if(cmp != null && expOut != null) {
+                
+                if(!cmp.equal(Arrayjo.getJSONObject(i) ,Sim.getState())) {
+                	notEq = true;
+                    str = "Estados diferentes: ";
+                    str += Arrayjo.getJSONObject(i).toString() + " y " + Sim.toString() + " y ";
+                    str += "Paso: " + i + "\n";
+                    System.out.println(str);
                 }
             }
 
-            if (i != n - 1) out.write("\n,".getBytes());
+            if (i != n - 1) p.print("\n,");
         }
-        out.write("]".getBytes());
-        out.write("}".getBytes());
-        out.close();
+        p.print("\n]");
+        p.print("\n}");
+        p.close();
 
-
+        if (notEq) {
+        	st += str;
+        	throw new ExceptionState(st);
+        }
 
 
     }

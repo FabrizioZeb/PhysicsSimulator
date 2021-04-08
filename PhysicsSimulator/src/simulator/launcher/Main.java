@@ -25,7 +25,7 @@ public class Main {
 	//
 	private final static Double _dtimeDefaultValue = 2500.0;
 	private final static String _forceLawsDefaultValue = "nlug";
-	private final static String _stateComparatorDefaultValue = "epseq";
+	private final static String _stateComparatorDefaultValue = "masseq";
 	//....
 	private final static Integer _stepsDefaultValue = 150;
 
