@@ -31,54 +31,47 @@ public class Controller {
     }
 
     public void run(int n, OutputStream out, InputStream expOut, StateComparator cmp) throws IOException,ExceptionState {
-    	boolean notEq = false;
-    	String st = null, str = null;
-    	PrintStream p = new PrintStream(out);
+        boolean notEq = false;
+        PrintStream p = new PrintStream(out);
         JSONObject jo = null;
         JSONArray Arrayjo = null;
         if(expOut != null) {
             jo = new JSONObject(new JSONTokener(expOut));
             Arrayjo = jo.getJSONArray("states");
-            
+
         }
         //Si n es 0 al menos recorre el estado 0.
         p.print("{\n");
         p.print("\"states\": [\n");
         p.print(Sim.toString());
         if(cmp != null && expOut != null) {
-        	if(!cmp.equal(Arrayjo.getJSONObject(0), Sim.getState())) {
-        		notEq=true;
-        		st = "Estados diferentes: ";
-        		st += Arrayjo.getJSONObject(0).toString() + " y " + Sim.toString() + " y ";
-        		st += "Paso: 0\n";
-        	}
+            if(!cmp.equal(Arrayjo.getJSONObject(0), Sim.getState())) {
+                notEq=true;
+                String st = "\nEstados diferentes:\n ";
+                st += Arrayjo.getJSONObject(0).toString() + " y \n" + Sim.toString() + "\n";
+                st += "Step: 0\n";
+                throw new ExceptionState(st);
+            }
         }
         p.print("\n,");
-        for (int i = 0; i < n; i++) {
+        for (int i = 1; i <= n; i++) {
             Sim.advance();
             p.print(Sim.toString());
-
             if(cmp != null && expOut != null) {
-                
+
                 if(!cmp.equal(Arrayjo.getJSONObject(i) ,Sim.getState())) {
-                	notEq = true;
-                    str = "Estados diferentes: ";
-                    str += Arrayjo.getJSONObject(i).toString() + " y " + Sim.toString() + " y ";
-                    str += "Paso: " + i + "\n";
-                    System.out.println(str);
+                    notEq = true;
+                    String str = "\nEstados diferentes:\n";
+                    str += Arrayjo.getJSONObject(i).toString() + " y \n" + Sim.toString() + "\n";
+                    str += "Step: " + i + "\n";
+                    throw new ExceptionState(str);
                 }
             }
-
-            if (i != n - 1) p.print("\n,");
+            if (i != n) p.print("\n,");
         }
         p.print("\n]");
         p.print("\n}");
         p.close();
-
-        if (notEq) {
-        	st += str;
-        	throw new ExceptionState(st);
-        }
 
 
     }

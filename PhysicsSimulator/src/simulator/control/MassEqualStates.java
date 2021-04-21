@@ -13,23 +13,20 @@ public class MassEqualStates implements StateComparator{
         if(s1.getInt("time") == s2.getInt("time")) {
             JSONArray bodies1 = s1.getJSONArray("bodies");
             JSONArray bodies2 = s2.getJSONArray("bodies");
-            if(bodies1.similar(s2)) {
-                int i = 0, j = 0;
+            if(bodies1.length() == bodies2.length()) {
+                int i = 0;
                 while (i < bodies1.length() && equals) {
-                    JSONObject m1 = bodies1.getJSONObject(i).getJSONObject("m");
-                    JSONObject id1 = bodies1.getJSONObject(i).getJSONObject("id");
-                    while (j < bodies2.length() && equals) {
-                        JSONObject m2 = bodies2.getJSONObject(j).getJSONObject("m");
-                        JSONObject id2 = bodies2.getJSONObject(j).getJSONObject("id");
-                        if (!m1.equals(m2) || !id1.equals(id2)) equals = false;
-                        j++;
-                    }
+                    double m1 = bodies1.getJSONObject(i).getDouble("m");
+                    String id1 = bodies1.getJSONObject(i).getString("id");
+                    double m2 = bodies2.getJSONObject(i).getDouble("m");
+                    String id2 = bodies2.getJSONObject(i).getString("id");
+                    if (m1 != m2 || !id1.equals(id2)) equals = false;
                     i++;
                 }
             }
-            else equals = false;
+            else return false;
         }
         else return equals = false;
-		return equals;
+        return equals;
     }
 }

@@ -28,6 +28,8 @@ public class Main {
 	private final static String _stateComparatorDefaultValue = "masseq";
 	//....
 	private final static Integer _stepsDefaultValue = 150;
+	private final static String _outFileDefaultValue = null;
+
 
 	// some attributes to stores values corresponding to command-line parameters
 	//
@@ -37,6 +39,7 @@ public class Main {
 	private static String _inFile = null;
 	//....
 	private static String _outFile = null;
+
 	private static String _expectedOutput = null;
 	//....
 	private static JSONObject _forceLawsInfo = null;
@@ -46,6 +49,7 @@ public class Main {
 	private static Factory<Body> _bodyFactory;
 	private static Factory<ForceLaws> _forceLawsFactory;
 	private static Factory<StateComparator> _stateComparatorFactory;
+
 
 	private static void init() {
 		// TODO initialize the bodies factory
@@ -85,6 +89,7 @@ public class Main {
 			parseOutFileOption(line);
 			parseExpectedOutputOption(line);
 			parseStepsOption(line);
+
 			parseDeltaTimeOption(line);
 			parseForceLawsOption(line);
 			parseStateComparatorOption(line);
@@ -183,10 +188,7 @@ public class Main {
 
 	//....
 	private static void parseOutFileOption(CommandLine line) throws ParseException {
-		_outFile = line.getOptionValue("o");
-		if(_outFile == null) {
-			throw new ParseException("In batch mode an output file of bodies is required");
-		}
+		_outFile = line.getOptionValue("o",_outFileDefaultValue);
 	}
 
 
@@ -274,9 +276,11 @@ public class Main {
 		ForceLaws forceLaws = _forceLawsFactory.createInstance(_forceLawsInfo);
 		PhysicsSimulator sim = new PhysicsSimulator(forceLaws,_dtime);
 
-
+		OutputStream os;
 		InputStream is = new FileInputStream(new File(Main._inFile));
-		OutputStream os = Main._outFile == null ? System.out : new FileOutputStream(new File(Main._outFile));
+		if(Main._outFile == null) os = System.out;
+		else os = new FileOutputStream(new File(Main._outFile));
+
 		InputStream eo = null;
 		StateComparator stateComparator = null;
 		if(_expectedOutput != null) {

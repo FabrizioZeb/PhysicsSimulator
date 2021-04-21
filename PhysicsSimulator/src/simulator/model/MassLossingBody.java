@@ -18,6 +18,8 @@ public class MassLossingBody extends Body {
     @Override
     public void move(double t) {
         super.move(t);
+        if(c == 0)
+            c += t;
         if (c >= lossFrequency) {
             mass = mass * (1 - lossFactor);
             c = 0;
