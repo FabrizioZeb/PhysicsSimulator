@@ -61,18 +61,34 @@ public class PhysicsSimulator {
         if(dt > 0)
             this.dt = dt;
         else throw new IllegalArgumentException("Delta Time: " + dt + ", no válido");
-        for (int i = 0; i < bodyList.size(); i++){
+        for (int i = 0; i < observerList.size(); i++){
             observerList.get(i).onDeltaTimeChanged(dt);
         }
     }
 
     public void setForceLaws(ForceLaws forceLaws){
-        if(forceLaws != null)
+        if(forceLaws != null) {
             this.forceLaws = forceLaws;
-        else throw new IllegalArgumentException("ForceLaws tiene valor null");
-        for(int i = 0; i < bodyList.size(); i++){
-            observerList.get(i).onForceLawsChanged(forceLaws.toString());
+            for(int i = 0; i < observerList.size(); i++){
+                observerList.get(i).onForceLawsChanged(forceLaws.toString());
+            }
         }
+        else throw new IllegalArgumentException("ForceLaws tiene valor null");
+
+    }
+
+    public void setConstants(ArrayList<String> parameters){
+        if(parameters.size() == 2) {
+            for (int i = 0; i < parameters.size(); i++) {
+                try {
+                    Double.parseDouble(parameters.get(i));
+                } catch (NumberFormatException e) {
+
+                }
+            }
+        }
+        this.forceLaws.setConstants(parameters);
+
     }
 
     public void addObserver(SimulatorObserver o){

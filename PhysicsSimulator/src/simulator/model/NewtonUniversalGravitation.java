@@ -37,6 +37,13 @@ public class NewtonUniversalGravitation implements ForceLaws{
         }
     }
 
+    @Override
+    public void setConstants(ArrayList<String> parameters) {
+        if(!parameters.isEmpty())
+            this.G = Double.parseDouble(parameters.get(0));
+        else G = 6.67E-11;
+    }
+
     private Vector2D force(Body i, Body j){ // F = G *(m1*m2)/|p2-p1|^2:
         double m = i.getMass() * j.getMass(); // Producto de las masas
         double R = i.getPos().distanceTo(j.getPos()); //Distancia de un cuerpo a otro
@@ -52,6 +59,10 @@ public class NewtonUniversalGravitation implements ForceLaws{
 
     public String toString(){
         return "Newton's Universal Gravitation with G = " + G;
+    }
+
+    public void setG(double G){
+        this.G = G;
     }
 
 }

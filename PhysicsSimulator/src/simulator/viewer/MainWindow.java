@@ -87,7 +87,7 @@ public class MainWindow extends JFrame {
         JPanel top = new JPanel();
         top.setAlignmentX(Component.CENTER_ALIGNMENT);
         top.setLayout(new GridLayout(1,1));
-        top.setBackground(new Color(0, 180, 216));
+        top.setBackground(new Color(255, 255, 255));
         top.add(bodiesTable);
         center.add(top);
 
@@ -102,9 +102,10 @@ public class MainWindow extends JFrame {
         mainPanel.add(center, BorderLayout.CENTER);
 
         statusBar = new StatusBar(_ctlr);
-        statusBar.setBackground(new Color(220, 220, 220));
+        statusBar.setBackground(new Color(255, 255, 255));
         mainPanel.add(statusBar, BorderLayout.PAGE_END);
-        statusBar.repaint();
+
+        //statusBar.repaint();
 
         this.setVisible(true);
     }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Controller {
@@ -111,6 +112,10 @@ public class Controller {
     public void setForceLaws(JSONObject info){
         ForceLaws forceLaws = forceLawsFactory.createInstance(info);
         Sim.setForceLaws(forceLaws);
+    }
+
+    public void setConstants(ArrayList<String> parameters){
+        Sim.setConstants(parameters);
     }
 
 }

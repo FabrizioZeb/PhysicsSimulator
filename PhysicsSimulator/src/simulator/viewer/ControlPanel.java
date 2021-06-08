@@ -2,23 +2,30 @@ package simulator.viewer;
 
 import org.json.JSONObject;
 import simulator.control.Controller;
-import simulator.misc.Vector2D;
+
 import simulator.model.Body;
 import simulator.model.SimulatorObserver;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControlPanel extends JPanel implements SimulatorObserver {
 
-    private Controller _ctrl;
+    private final Controller _ctrl;
     private boolean _stopped;
+    private int fLaw = 0;
 
     JButton openButton;
     JButton physicsButton;
@@ -48,7 +55,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
 
     private void initGUI() {
         JToolBar toolBar = new JToolBar();
-        Color mycolor = new Color(212, 223, 255);
+        Color mycolor = new Color(255, 255, 255);
         toolBar.setBackground(mycolor);
         toolBar.setFloatable(false);
 
@@ -111,7 +118,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
             }
         });
 
-        steps = new JSpinner(new SpinnerNumberModel(0,null,null,100));
+        steps = new JSpinner(new SpinnerNumberModel(0,0,null,100));
         steps.setToolTipText("Steps to execute (1-1000)");
         steps.setFont(Font.getFont(Font.SANS_SERIF));
         steps.setPreferredSize(new Dimension(70,35));
@@ -121,6 +128,15 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
         time.setToolTipText("Time between steps");
         time.setFont(Font.getFont(Font.SANS_SERIF));
         time.setPreferredSize(new Dimension(70,35));
+
+        time.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                String valor = time.getText();
+                int l = valor.length();
+                time.setEditable(e.getKeyChar() >= '0' && e.getKeyChar() <= '9' || e.getKeyChar() == KeyEvent.VK_BACK_SPACE || e.getKeyChar() == KeyEvent.VK_ESCAPE);
+            }
+        });
 
         time.setEditable(true);
 
@@ -170,7 +186,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
         String[] forceLaws = new String[list.size()];
         // option -> [nlug, mtfp, nf]
         JSONObject[] option = new JSONObject[list.size()];
-        int fLaw = 0;
+
 
         for (int i = 0; i < list.size(); i++) {
             forceLaws[i] = list.get(i).getString("desc");
@@ -184,52 +200,57 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
         JButton button2 = new JButton("Cancel");
         JComboBox<String> Flaw_ComboBox = new JComboBox<String>(forceLaws);
         JLabel label = new JLabel("Force Law: ");
-        pnPane.setLayout(new GridLayout(4,1));
+        pnPane.setLayout(new BorderLayout());
 
-
-        String info = (String) Flaw_ComboBox.getSelectedItem();
-        fLaw = selectedItem(info);
-
-        _ctrl.setForceLaws(option[fLaw]);
-
-        onForceLawsChanged(forceLaws[fLaw]);
+        Flaw_ComboBox.setSelectedItem(forceLaws[fLaw]);
 
 
         String[] columnNames = {"Key", "Value", "Description"};
-        dtm = new DefaultTableModel(){
-            String[] columnNames = {"Key", "Value", "Description"};
+        dtm = new DefaultTableModel(columnNames, 0){
             @Override
-            public int getColumnCount() {
-                return columnNames.length;
-            }
-            @Override
-            public String getColumnName(int index){
-                return columnNames[index];
+            public boolean isCellEditable(int row,int column){
+                return column == 1;
             }
         };
-        table = new JTable(dtm);
-        JScrollPane scrollPane = new JScrollPane(table);
-        table.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.blue,2)));
 
-        for(int i = 0; i < dtm.getColumnCount();i++){
-            TableColumn col = table.getTableHeader().getColumnModel().getColumn(i);
-            col.setHeaderValue(columnNames[i].toString());
+        table = new JTable(dtm);
+
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        table.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(124, 158, 217),2,true)));
+
+        //Ancho de las columnas:
+        table.getColumnModel().getColumn(0).setPreferredWidth(20);
+        table.getColumnModel().getColumn(1).setPreferredWidth(20);
+        table.getColumnModel().getColumn(2).setPreferredWidth(120);
+
+        for(int i = 0; i < table.getColumnCount();i++){
+            table.getColumnModel().getColumn(i).setHeaderValue(columnNames[i]);
+            table.getTableHeader().repaint();
+
         }
+
         changeTable(fLaw);
 
 
-
-        double constant;
-        Vector2D c;
+        table.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                ArrayList<String> parameters = getConst();
+                _ctrl.setConstants(parameters);
+            }
+        });
 
         final int[] finalFLaw = new int[1];
-
         Flaw_ComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String sel = (String) Flaw_ComboBox.getSelectedItem();
                 finalFLaw[0] = selectedItem(sel);
                 changeTable(finalFLaw[0]);
+                _ctrl.setForceLaws(option[finalFLaw[0]]);
+                onForceLawsChanged(forceLaws[finalFLaw[0]]);
+
             }
         });
 
@@ -238,6 +259,8 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
             public void actionPerformed(ActionEvent e) {
                 _ctrl.setForceLaws(option[finalFLaw[0]]);
                 onForceLawsChanged(forceLaws[finalFLaw[0]]);
+                fLaw = finalFLaw[0];
+                //frame.dispose();
             }
         });
 
@@ -248,23 +271,48 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
                 _ctrl.setForceLaws(option[0]);
                 onForceLawsChanged(forceLaws[0]);
                 changeTable(0);
+               //frame.dispose();
             }
         });
+
         JPanel buttons = new JPanel();
-        buttons.setLayout(new GridLayout(1,2));
-        pnPane.add(new JLabel("Select a force law and provide values for the parameters " +
-                "in the Value Column ( default values are used for parameters with no values"));
-        pnPane.add(table);
-        pnPane.add(Flaw_ComboBox);
+        buttons.setLayout(new FlowLayout());
+        //Panel de texto de arriba (no editable)
+        JTextPane DialogText = new JTextPane();
+        DialogText.setEditable(false);
+        DialogText.setPreferredSize(new Dimension(100,50));
+        DialogText.setLayout(new FlowLayout());
+        SimpleAttributeSet attributeSet = new SimpleAttributeSet();
+        StyleConstants.setBold(attributeSet,true);
+        DialogText.setCharacterAttributes(attributeSet,true);
+        DialogText.setText("Select a force law and provide values for the parameters in the Value Column (default values are used for parameters with no values)");
+        pnPane.add(DialogText,BorderLayout.PAGE_START);
+        //---------------------
+
+        JPanel Combo_tabla = new JPanel();
+        Combo_tabla.setLayout(new BoxLayout(Combo_tabla,BoxLayout.Y_AXIS));
+        table.setPreferredSize(new Dimension(700,300));
+        //Tabla
+        Combo_tabla.add(new JScrollPane(table));
+        //Panel: Label y Combo-Box
+        JPanel Combo = new JPanel();
+        Combo.setLayout(new FlowLayout());
+        Combo.add(label);
+        Combo.add(Flaw_ComboBox);
+        Combo_tabla.add(Combo);
+        pnPane.add(Combo_tabla, BorderLayout.CENTER);
         buttons.add(button1);
         buttons.add(button2);
-        pnPane.add(buttons);
+        pnPane.add(buttons,BorderLayout.PAGE_END);
 
         frame.getContentPane().add(BorderLayout.CENTER,pnPane);
         frame.setVisible(true);
 
         _ctrl.getForceLawsInfo();
     }
+
+
+
 
     private void changeTable(int data){
 
@@ -275,31 +323,33 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
         if(data == 1){
 
             dtm.addRow(new Object[]{"c",null,"the point towards which bodies move"});
-            dtm.addRow(new Object[]{"g",null,"the lenght of the acceleration"});
+            dtm.addRow(new Object[]{"g",null,"the length of the acceleration"});
         }
-        else{ /*No data*/};
+        else{ /*No data*/}
     }
 
-    private double getConst(){
-        double constant = 0;
+    private ArrayList<String> getConst(){
+        ArrayList<String> constant = new ArrayList<>();
         for(int i = 0; i < dtm.getRowCount(); i++){
-            if(dtm.getValueAt(i,1) != " ")
+            if(dtm.getValueAt(i,1) != null && dtm.getValueAt(i,1) != "" && dtm.getValueAt(i,1) != " ") {
                 try {
-                    constant = (double) dtm.getValueAt(i, 1);
+                    constant.add((String) dtm.getValueAt(i, 1));
                 } catch (Exception e){
-                    e.getMessage().toString();
+                    e.getMessage();
                 }
-            ;
+            }
         }
         return constant;
     }
 
+
+
+
     private int selectedItem(String info){
         int fLaw;
-        if (info == null) {
+/*        if (info == null) {
             //info = forceLaws[0];
-            fLaw = 0;
-        }
+        }*/
         fLaw = switch (info) {
             case "Newton's law of universal gravitation" -> 0;
             case "Moving towards a fixed point" -> 1;
@@ -318,9 +368,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
             try {
                 _ctrl.run(1);
             } catch (Exception e) {
-                // TODO show the error in a dialog box
                 JOptionPane.showMessageDialog(null,e.getMessage());
-                // TODO enable all buttons
                 openButton.setEnabled(true);
                 physicsButton.setEnabled(true);
                 exitButton.setEnabled(true);
@@ -337,7 +385,6 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
             });
         } else {
             _stopped = true;
-            // TODO enable all buttons
             openButton.setEnabled(true);
             physicsButton.setEnabled(true);
             exitButton.setEnabled(true);
@@ -346,7 +393,6 @@ public class ControlPanel extends JPanel implements SimulatorObserver {
         }
     }
     // SimulatorObserver methods
-    // ...
 
     @Override
     public void onRegistrer(List<Body> bodies, double time, double dt, String fLawsDesc) {

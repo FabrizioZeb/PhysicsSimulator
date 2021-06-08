@@ -34,7 +34,7 @@ public class Viewer extends JComponent implements SimulatorObserver {
         setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.BLACK, 2),
                 "Viewer",
-                TitledBorder.LEFT,TitledBorder.TOP));
+                TitledBorder.LEFT, TitledBorder.TOP));
         _bodies = new ArrayList<>();
         _scale = 1.0;
         _showHelp = true;
@@ -68,6 +68,7 @@ public class Viewer extends JComponent implements SimulatorObserver {
                     default:
                 }
             }
+
             @Override
             public void keyTyped(KeyEvent e) {
 
@@ -120,42 +121,43 @@ public class Viewer extends JComponent implements SimulatorObserver {
         // calculate the center
         _centerX = getWidth() / 2;
         _centerY = getHeight() / 2;
-        // TODO draw a cross at center
+        // draw a cross
         gr.setColor(Color.red);
-        gr.drawString("+",_centerX,_centerY);
-        // TODO draw bodies (with vectors if _showVectors is true)
-        for (Body body : _bodies){
+        gr.drawString("+", _centerX, _centerY);
+        for (Body body : _bodies) {
+            int x = _centerX + (int) (body.getPos().getX() / _scale);
+            int y = _centerY - (int) (body.getPos().getY() / _scale);
             //Pintar vectores
-            if(_showVectors){
+            if (_showVectors) {
                 this.drawLineWithArrow(g,
-                        _centerX + (int) (body.getPos().getX()/_scale) + 5,
-                        _centerY - (int) (body.getPos().getY()/_scale)+ 5,
-                        _centerX + (int) (body.getForce().direction().scale(10).getX()),
-                        _centerY - (int) (body.getForce().direction().scale(10).getY()),
-                        3,3,
-                        Color.green,Color.green);
+                        x + 5,
+                        y + 5,
+                        x + 5 + (int) (body.getForce().direction().scale(20).getX()),
+                        y + 5 - (int) (body.getForce().direction().scale(20).getY()),
+                        3, 3,
+                        Color.green, Color.green);
                 this.drawLineWithArrow(g,
-                        _centerX + (int) (body.getPos().getX()/_scale) + 5,
-                        _centerY - (int) (body.getPos().getY()/_scale) + 5,
-                        _centerX + (int) (body.getVelocity().direction().scale(10).getX()),
-                        _centerY - (int) (body.getVelocity().direction().scale(10).getY()),
-                        3,3,
-                        Color.red,Color.red);
+                        x + 5,
+                        y + 5,
+                        x + 5 + (int) (body.getVelocity().direction().scale(20).getX()),
+                        y + 5 - (int) (body.getVelocity().direction().scale(20).getY()),
+                        3, 3,
+                        Color.red, Color.red);
             }
             //Pintar cuerpo
             gr.setColor(Color.blue);
-            gr.drawOval(_centerX + (int) (body.getPos().getX()/_scale),_centerY - (int) (body.getPos().getY()/_scale),10,10);
-            gr.fillOval(_centerX + (int) (body.getPos().getX()/_scale), _centerY - (int) (body.getPos().getY()/_scale), 10, 10);
+            gr.drawOval(x, y, 10, 10);
+            gr.fillOval(_centerX + (int) (body.getPos().getX() / _scale), _centerY - (int) (body.getPos().getY() / _scale), 10, 10);
             //Pintar id
             gr.setColor(Color.black);
-            gr.drawString(body.getId(),_centerX + (int) (body.getPos().getX()/_scale),_centerY - (int) (body.getPos().getY()/_scale));
+            gr.drawString(body.getId(), _centerX + (int) (body.getPos().getX() / _scale), _centerY - (int) (body.getPos().getY() / _scale));
         }
-// TODO draw help if _showHelp is true
-        if(_showHelp){
+
+        if (_showHelp) {
             gr.setColor(Color.red);
-            gr.drawString("h: toggle help, +: zoom. -: zoom^-1, =: scale",5,23);
-            gr.drawString("v: toggle vectors",5,36);
-            gr.drawString("scale: " + _scale,5,49);
+            gr.drawString("h: toggle help, +: zoom-in, -: zoom-out, =: scale", 5, 23);
+            gr.drawString("v: toggle vectors", 5, 36);
+            gr.drawString("scale: " + _scale, 5, 49);
         }
     }
 
@@ -176,27 +178,27 @@ public class Viewer extends JComponent implements SimulatorObserver {
 // The arrow is of height h and width w.
 // The last two arguments are the colors of the arrow and the line
     private void drawLineWithArrow(//
-       Graphics g, //
-       int x1, int y1, //
-       int x2, int y2, //
-       int w, int h, //
-       Color lineColor, Color arrowColor) {
-            int dx = x2 - x1, dy = y2 - y1;
-            double D = Math.sqrt(dx * dx + dy * dy);
-            double xm = D - w, xn = xm, ym = h, yn = -h, x;
-            double sin = dy / D, cos = dx / D;
-            x = xm * cos - ym * sin + x1;
-            ym = xm * sin + ym * cos + y1;
-            xm = x;
-            x = xn * cos - yn * sin + x1;
-            yn = xn * sin + yn * cos + y1;
-            xn = x;
-            int[] xpoints = {x2, (int) xm, (int) xn};
-            int[] ypoints = {y2, (int) ym, (int) yn};
-            g.setColor(lineColor);
-            g.drawLine(x1, y1, x2, y2);
-            g.setColor(arrowColor);
-            g.fillPolygon(xpoints, ypoints, 3);
+                                   Graphics g, //
+                                   int x1, int y1, //
+                                   int x2, int y2, //
+                                   int w, int h, //
+                                   Color lineColor, Color arrowColor) {
+        int dx = x2 - x1, dy = y2 - y1;
+        double D = Math.sqrt(dx * dx + dy * dy);
+        double xm = D - w, xn = xm, ym = h, yn = -h, x;
+        double sin = dy / D, cos = dx / D;
+        x = xm * cos - ym * sin + x1;
+        ym = xm * sin + ym * cos + y1;
+        xm = x;
+        x = xn * cos - yn * sin + x1;
+        yn = xn * sin + yn * cos + y1;
+        xn = x;
+        int[] xpoints = {x2, (int) xm, (int) xn};
+        int[] ypoints = {y2, (int) ym, (int) yn};
+        g.setColor(lineColor);
+        g.drawLine(x1, y1, x2, y2);
+        g.setColor(arrowColor);
+        g.fillPolygon(xpoints, ypoints, 3);
     }
 
     @Override
